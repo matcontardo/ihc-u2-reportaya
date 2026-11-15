@@ -1,0 +1,31 @@
+digraph G {
+  graph [rankdir=LR, fontname="Helvetica", fontsize=12, label="Modelo conceptual ReportaYa (conceptos y relaciones)", labelloc=t, pad=0.3, nodesep=0.5, ranksep=0.7];
+  node [shape=box, style="rounded,filled", fillcolor="#e3f1e8", color="#1f6f43", fontname="Helvetica", fontsize=12];
+  edge [fontname="Helvetica", fontsize=10, color="#444444"];
+  Operario [fillcolor="#fff1cc", color="#8a5a00"];
+  Tecnico [label="Técnico de\nmantención", fillcolor="#fff1cc", color="#8a5a00"];
+  Supervisor [label="Supervisor\nde línea", fillcolor="#fff1cc", color="#8a5a00"];
+  Linea [label="Línea"];
+  Maquina [label="Máquina\n(código QR)"];
+  Reporte [label="Reporte\n(N° R-xxxx)", fillcolor="#1f6f43", fontcolor="white"];
+  Problema [label="Tipo de\nproblema"];
+  Gravedad [label="Gravedad"];
+  Evidencia [label="Evidencia\n(foto / audio)"];
+  Estado [label="Estado\n(seguimiento)"];
+  Mensaje [label="Mensaje"];
+  Aviso [label="Aviso\n(notificación)"];
+  Linea -> Maquina [label="tiene varias"];
+  Operario -> Linea [label="trabaja en"];
+  Operario -> Reporte [label="crea"];
+  Reporte -> Maquina [label="es sobre una"];
+  Reporte -> Problema [label="indica"];
+  Reporte -> Gravedad [label="indica"];
+  Reporte -> Evidencia [label="puede tener", style=dashed];
+  Reporte -> Estado [label="pasa por"];
+  Tecnico -> Estado [label="actualiza"];
+  Estado -> Aviso [label="genera"];
+  Aviso -> Operario [label="llega a"];
+  Aviso -> Supervisor [label="llega a"];
+  Reporte -> Mensaje [label="tiene", style=dashed];
+  Tecnico -> Mensaje [label="escribe", style=dashed];
+}
