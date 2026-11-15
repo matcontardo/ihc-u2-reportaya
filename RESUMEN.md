@@ -1,7 +1,7 @@
 # Resumen de la entrega: ReportaYa
 
 **Asignatura:** Interacción Humano Computador, Unidad 2 · **Carrera:** Ingeniería en Computación e Informática, Universidad Mayor
-**Integrantes:** Matías Contardo, [Integrante 2], [Integrante 3]
+**Integrantes:** Matías Contardo, Daniela Geell, Francisco Ocares
 **Repositorio:** https://github.com/matcontardo/ihc-u2-reportaya
 **Prototipo:** https://matcontardo.github.io/ihc-u2-reportaya/prototipo/media-fidelidad/
 

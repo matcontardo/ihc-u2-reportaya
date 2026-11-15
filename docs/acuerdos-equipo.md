@@ -5,8 +5,8 @@
 | Integrante | Rol principal |
 |---|---|
 | Matías Contardo | Coordinación, contexto de la planta (requisitos), repositorio GitHub y prototipo navegable |
-| [Integrante 2] | Alternativas, modelo conceptual y metáfora |
-| [Integrante 3] | Arquitectura de información, flujo de usuario y diseño visual/emocional |
+| Daniela Geell | Alternativas, modelo conceptual y metáfora |
+| Francisco Ocares | Arquitectura de información, flujo de usuario y diseño visual/emocional |
 
 > Todos revisamos el informe completo antes de la entrega.
 
