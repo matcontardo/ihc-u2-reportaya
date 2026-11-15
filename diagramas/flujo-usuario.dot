@@ -1,0 +1,30 @@
+digraph G {
+  graph [rankdir=TB, fontname="Helvetica", label="Flujo de usuario: reportar una falla y confirmar la reparación", labelloc=t, pad=0.3, nodesep=0.35, ranksep=0.35];
+  node [fontname="Helvetica", fontsize=11, shape=box, style="rounded,filled", fillcolor="white", color="#1f6f43"];
+  edge [fontname="Helvetica", fontsize=10, color="#444444"];
+  ini [label="Operario detecta\nuna falla", shape=oval, fillcolor="#fff1cc", color="#8a5a00"];
+  a [label="Inicio → \"Reportar una falla\""];
+  q [label="¿La máquina tiene\nQR legible?", shape=diamond, fillcolor="#e2ecf8", color="#1c4f8c"];
+  esc [label="Escanea QR"];
+  lis [label="Elige máquina\nde la lista"];
+  p1 [label="Paso 1: confirma máquina"];
+  ok [label="¿Es la correcta?", shape=diamond, fillcolor="#e2ecf8", color="#1c4f8c"];
+  p2 [label="Paso 2: elige el problema"];
+  v2 [label="¿Eligió una\nopción?", shape=diamond, fillcolor="#e2ecf8", color="#1c4f8c"];
+  e2 [label="Mensaje: \"Elige una\nopción para continuar\"", fillcolor="#fbe4e2", color="#b3261e"];
+  p3 [label="Paso 3: gravedad\n(+ foto / audio opcional)"];
+  rev [label="Revisar y enviar"];
+  conf [label="Confirmación con N° de reporte\n+ técnico y supervisor avisados", fillcolor="#e3f1e8"];
+  seg [label="Seguimiento del estado\n(recibido → en camino)\n+ mensajes con técnico"];
+  noti [label="Aviso: \"¿Funciona bien?\"", fillcolor="#fff1cc", color="#8a5a00"];
+  r [label="¿Funciona?", shape=diamond, fillcolor="#e2ecf8", color="#1c4f8c"];
+  fin [label="Reporte cerrado", shape=oval, fillcolor="#1f6f43", fontcolor=white];
+  reab [label="Reporte reabierto\n(vuelve a \"Recibido\")", fillcolor="#fbe4e2", color="#b3261e"];
+  ini -> a -> q;
+  q -> esc [label="sí"]; q -> lis [label="no"];
+  esc -> p1; lis -> p1;
+  p1 -> ok; ok -> p2 [label="sí"]; ok -> lis [label="no"];
+  p2 -> v2; v2 -> p3 [label="sí"]; v2 -> e2 [label="no"]; e2 -> p2;
+  p3 -> rev -> conf -> seg -> noti -> r;
+  r -> fin [label="sí"]; r -> reab [label="no"]; reab -> seg;
+}

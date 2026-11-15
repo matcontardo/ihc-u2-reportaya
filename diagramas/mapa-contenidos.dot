@@ -1,0 +1,27 @@
+digraph G {
+  graph [rankdir=TB, fontname="Helvetica", label="Mapa de contenidos (arquitectura de información) - ReportaYa", labelloc=t, pad=0.3, nodesep=0.25, ranksep=0.5];
+  node [shape=box, style="rounded,filled", fillcolor="white", color="#1f6f43", fontname="Helvetica", fontsize=11];
+  edge [color="#666666", arrowhead=none];
+  Inicio [label="Inicio\n(nombre, línea, turno)", fillcolor="#1f6f43", fontcolor=white];
+  R [label="Reportar una falla", fillcolor="#e3f1e8"];
+  M [label="Mis reportes", fillcolor="#e3f1e8"];
+  P [label="Perfil / Turno", fillcolor="#e3f1e8"];
+  Inicio -> R; Inicio -> M; Inicio -> P;
+  R -> Q [label=""]; Q [label="Escanear QR"];
+  R -> L; L [label="Elegir de lista\n(por línea)"];
+  R -> W; W [label="Asistente 3 pasos", fillcolor="#fff1cc"];
+  W -> W1; W1 [label="1. Máquina"];
+  W -> W2; W2 [label="2. Problema\n(6 categorías)"];
+  W -> W3; W3 [label="3. Gravedad\n+ foto/audio opc."];
+  W -> W4; W4 [label="Revisar y enviar"];
+  W -> W5; W5 [label="Confirmación\n(N° reporte)"];
+  M -> M1; M1 [label="En curso"];
+  M -> M2; M2 [label="Terminados"];
+  M1 -> D; D [label="Detalle del reporte", fillcolor="#fff1cc"];
+  D -> D1; D1 [label="Seguimiento\n(4 estados)"];
+  D -> D2; D2 [label="Mensajes con\ntécnico"];
+  D -> D3; D3 [label="Confirmar\nreparación"];
+  P -> P1; P1 [label="Cambiar línea"];
+  P -> P2; P2 [label="Ayuda / qué hacer\nsi hay riesgo"];
+  P -> P3; P3 [label="Cerrar sesión"];
+}
