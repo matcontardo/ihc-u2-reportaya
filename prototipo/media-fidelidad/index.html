@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReportaYa - Prototipo media fidelidad (IHC U2)</title>
+<!--
+  Prototipo navegable de media fidelidad - ReportaYa
+  Interaccion Humano Computador - Unidad 2 - Universidad Mayor
+  No tiene backend: los datos son de ejemplo y la navegacion se simula con JS.
+-->
+<style>
+  @font-face { font-family: "Atkinson"; src: url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Atkinson"; src: url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2"); font-weight: 700; }
+
+  :root {
+    --verde: #1f6f43;      /* color principal (accion) */
+    --verde-claro: #e3f1e8;
+    --texto: #1c1c1c;
+    --gris: #5c5c5c;
+    --borde: #c9c9c9;
+    --fondo: #f4f4f1;
+    --rojo: #b3261e;
+    --rojo-claro: #fbe4e2;
+    --amarillo: #8a5a00;
+    --amarillo-claro: #fff1cc;
+    --azul: #1c4f8c;
+    --azul-claro: #e2ecf8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Atkinson", Arial, sans-serif; background: #d9dcd6; color: var(--texto); }
+  .marco { width: 380px; height: 780px; margin: 20px auto; background: #111; border-radius: 36px; padding: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  .telefono { width: 100%; height: 100%; background: var(--fondo); border-radius: 24px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .barra-estado { height: 26px; font-size: 13px; display: flex; justify-content: space-between; padding: 5px 16px; color: #333; background: #fff; }
+  .pantalla { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
+  .pantalla.activa { display: flex; }
+  header.top { background: var(--verde); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px; min-height: 56px; }
+  header.top h1 { font-size: 20px; margin: 0; font-weight: 700; flex: 1; }
+  .volver { background: none; border: 2px solid rgba(255,255,255,.6); color: #fff; font-size: 16px; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-family: inherit; }
+  .contenido { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .pasos { display: flex; gap: 6px; padding: 10px 16px 0; }
+  .pasos div { flex: 1; height: 8px; border-radius: 4px; background: var(--borde); }
+  .pasos div.hecho { background: var(--verde); }
+  .paso-txt { font-size: 15px; color: var(--gris); padding: 6px 16px 0; }
+  h2 { font-size: 24px; margin: 4px 0; }
+  p { font-size: 17px; line-height: 1.4; margin: 0; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 60px; font-size: 20px; font-weight: 700; border-radius: 12px; border: none; cursor: pointer; font-family: inherit; padding: 10px 14px; }
+  .btn-primario { background: var(--verde); color: #fff; }
+  .btn-secundario { background: #fff; color: var(--verde); border: 2px solid var(--verde); }
+  .btn-texto { background: none; color: var(--azul); text-decoration: underline; min-height: 48px; font-size: 17px; font-weight: 400; }
+  .btn-grande { min-height: 120px; font-size: 24px; flex-direction: column; }
+  .btn-grande .ico { font-size: 44px; }
+  .tarjeta { background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 14px; }
+  .aviso { background: var(--azul-claro); border-left: 6px solid var(--azul); border-radius: 8px; padding: 12px; font-size: 16px; }
+  .grilla { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opcion { background: #fff; border: 2px solid var(--borde); border-radius: 12px; min-height: 104px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 17px; font-weight: 700; text-align: center; cursor: pointer; padding: 8px; font-family: inherit; color: var(--texto); }
+  .opcion .ico { font-size: 34px; }
+  .opcion.sel { border: 4px solid var(--verde); background: var(--verde-claro); }
+  .gravedad { display: flex; align-items: center; gap: 12px; text-align: left; min-height: 78px; flex-direction: row; justify-content: flex-start; padding: 10px 14px; width: 100%; }
+  .gravedad small { display: block; font-weight: 400; font-size: 15px; color: var(--gris); }
+  .g-roja { border-left: 10px solid var(--rojo); }
+  .g-amarilla { border-left: 10px solid #d99a00; }
+  .g-gris { border-left: 10px solid #888; }
+  .fila { display: flex; gap: 10px; }
+  .fila > * { flex: 1; }
+  .chip { display: inline-block; font-size: 14px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+  .chip-rojo { background: var(--rojo-claro); color: var(--rojo); }
+  .chip-amarillo { background: var(--amarillo-claro); color: var(--amarillo); }
+  .chip-verde { background: var(--verde-claro); color: var(--verde); }
+  .chip-azul { background: var(--azul-claro); color: var(--azul); }
+  .camara { background: #2b2b2b; border-radius: 12px; height: 300px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .visor { width: 190px; height: 190px; border: 4px dashed #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; text-align: center; padding: 10px; }
+  .qr-fake { width: 110px; height: 110px; background: repeating-linear-gradient(90deg,#fff 0 10px,#000 10px 20px), #fff; opacity: .85; }
+  .lista-item { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 12px; cursor: pointer; min-height: 64px; font-size: 17px; }
+  .lista-item .ico { font-size: 28px; }
+  .lista-item .flecha { margin-left: auto; font-size: 22px; color: var(--gris); }
+  .seguimiento { list-style: none; padding: 0; margin: 0; }
+  .seguimiento li { position: relative; padding: 0 0 18px 40px; font-size: 17px; }
+  .seguimiento li::before { content: ""; position: absolute; left: 8px; top: 2px; width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--borde); background: #fff; }
+  .seguimiento li::after { content: ""; position: absolute; left: 18px; top: 24px; bottom: 0; width: 3px; background: var(--borde); }
+  .seguimiento li:last-child::after { display: none; }
+  .seguimiento li.ok::before { background: var(--verde); border-color: var(--verde); }
+  .seguimiento li.ok::after { background: var(--verde); }
+  .seguimiento li.actual::before { border-color: var(--verde); box-shadow: 0 0 0 4px var(--verde-claro); }
+  .seguimiento small { display: block; color: var(--gris); font-size: 14px; }
+  .resumen dt { font-size: 14px; color: var(--gris); margin-top: 8px; }
+  .resumen dd { margin: 0; font-size: 18px; font-weight: 700; }
+  .exito { text-align: center; padding: 10px 0; }
+  .exito .ico { font-size: 64px; color: var(--verde); }
+  .msg { max-width: 80%; padding: 10px 12px; border-radius: 12px; font-size: 16px; }
+  .msg.tec { background: #fff; border: 1px solid var(--borde); align-self: flex-start; }
+  .msg.yo { background: var(--verde-claro); align-self: flex-end; }
+  .rapidas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .rapidas button { border: 2px solid var(--verde); background: #fff; color: var(--verde); border-radius: 20px; padding: 10px 14px; font-size: 16px; font-family: inherit; cursor: pointer; }
+  .notif { position: absolute; top: 34px; left: 10px; right: 10px; background: #fff; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.3); padding: 12px; z-index: 5; display: none; cursor: pointer; }
+  .notif.ver { display: block; }
+  .notif b { display: block; font-size: 15px; }
+  .notif span { font-size: 15px; }
+  .grabar { background: #fff; border: 2px dashed var(--gris); border-radius: 12px; padding: 12px; font-size: 16px; text-align: center; cursor: pointer; }
+  .grabar.on { border-color: var(--rojo); color: var(--rojo); }
+  .ayuda-proto { width: 380px; margin: 0 auto 30px; font-size: 14px; color: #333; text-align: center; }
+  .ayuda-proto a { color: #1c4f8c; }
+  textarea { width: 100%; font-family: inherit; font-size: 17px; border: 2px solid var(--borde); border-radius: 10px; padding: 10px; min-height: 70px; }
+  .error { background: var(--rojo-claro); color: var(--rojo); border-radius: 8px; padding: 10px; font-size: 16px; display: none; }
+  .error.ver { display: block; }
+</style>
+</head>
+<body>
+
+<div class="marco">
+<div class="telefono">
+  <div class="barra-estado"><span>10:42</span><span>📶 🔋 78%</span></div>
+
+  <!-- Notificacion (tipo de interaccion: responder) -->
+  <div class="notif" id="notif" onclick="ir('responder'); ocultarNotif();">
+    <b>🔧 ReportaYa · Reporte N° R-0142</b>
+    <span>El técnico marcó la calibradora como reparada. ¿Funciona bien? Toca para responder.</span>
+  </div>
+
+  <!-- P1 INICIO -->
+  <section class="pantalla activa" id="inicio">
+    <header class="top"><h1>ReportaYa</h1><span style="font-size:15px">Rosa M. ▾</span></header>
+    <div class="contenido">
+      <p style="color:var(--gris)">Línea 2 · Turno A (07:00 a 15:00)</p>
+      <button class="btn btn-primario btn-grande" onclick="ir('escanear')"><span class="ico">📷</span>Reportar una falla</button>
+      <button class="btn btn-secundario" onclick="ir('misreportes')">📋 Mis reportes <span class="chip chip-azul">1 en curso</span></button>
+      <div class="aviso">ℹ️ Si hay riesgo para una persona, <b>detén la máquina y avisa al supervisor</b> antes de reportar.</div>
+      <div style="margin-top:auto" class="tarjeta">
+        <p style="font-size:15px;color:var(--gris)">Último reporte</p>
+        <p><b>Calibradora L2</b> · <span class="chip chip-amarillo">Técnico en camino</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- P2 ESCANEAR QR -->
+  <section class="pantalla" id="escanear">
+    <header class="top"><button class="volver" onclick="ir('inicio')">← Volver</button><h1>Escanear máquina</h1></header>
+    <div class="contenido">
+      <p>Apunta la cámara al <b>código QR pegado en la máquina</b>.</p>
+      <div class="camara" onclick="ir('confirmar')">
+        <div class="visor"><div class="qr-fake"></div></div>
+      </div>
+      <p style="font-size:14px;color:var(--gris);text-align:center">(En el prototipo: toca la cámara para simular la lectura)</p>
+      <button class="btn btn-primario" onclick="ir('confirmar')">Simular lectura del QR</button>
+      <button class="btn btn-texto" onclick="ir('lista')">No encuentro el código → elegir de una lista</button>
+    </div>
+  </section>
+
+  <!-- P2b LISTA DE MAQUINAS (explorar) -->
+  <section class="pantalla" id="lista">
+    <header class="top"><button class="volver" onclick="ir('escanear')">← Volver</button><h1>Elegir máquina</h1></header>
+    <div class="contenido">
+      <p><b>Línea 2</b> (tu línea)</p>
+      <div class="lista-item" onclick="ir('confirmar')"><span class="ico">⚙️</span>Calibradora<span class="flecha">›</span></div>
+      <div class="lista-item" onclick="ir('confirmar')"><span class="ico">🛞</span>Cinta transportadora 2A<span class="flecha">›</span></div>
+      <div class="lista-item" onclick="ir('confirmar')"><span class="ico">💧</span>Hidrocooler<span class="flecha">›</span></div>
+      <div class="lista-item" onclick="ir('confirmar')"><span class="ico">📦</span>Embaladora<span class="flecha">›</span></div>
+      <button class="btn btn-texto" onclick="alert('En una versión futura se podrían ver las máquinas de otras líneas.')">Ver otras líneas</button>
+    </div>
+  </section>
+
+  <!-- P3 PASO 1: CONFIRMAR MAQUINA -->
+  <section class="pantalla" id="confirmar">
+    <header class="top"><button class="volver" onclick="ir('escanear')">← Volver</button><h1>Reportar falla</h1></header>
+    <div class="pasos"><div class="hecho"></div><div></div><div></div></div>
+    <div class="paso-txt">Paso 1 de 3 · Máquina</div>
+    <div class="contenido">
+      <h2>¿Es esta la máquina?</h2>
+      <div class="tarjeta" style="display:flex;gap:12px;align-items:center">
+        <div style="width:90px;height:90px;background:#ddd;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px">⚙️</div>
+        <div><p><b>Calibradora</b></p><p style="color:var(--gris)">Línea 2 · Código CAL-L2</p></div>
+      </div>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-primario" onclick="ir('problema')">Sí, es esta</button>
+        <button class="btn btn-secundario" onclick="ir('lista')">No, elegir otra</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- P4 PASO 2: QUE LE PASA -->
+  <section class="pantalla" id="problema">
+    <header class="top"><button class="volver" onclick="ir('confirmar')">← Volver</button><h1>Reportar falla</h1></header>
+    <div class="pasos"><div class="hecho"></div><div class="hecho"></div><div></div></div>
+    <div class="paso-txt">Paso 2 de 3 · Problema</div>
+    <div class="contenido">
+      <h2>¿Qué le pasa?</h2>
+      <div class="grilla" id="grilla-problema">
+        <button class="opcion" onclick="elegir(this,'No enciende')"><span class="ico">🔌</span>No enciende</button>
+        <button class="opcion" onclick="elegir(this,'Ruido extraño')"><span class="ico">🔊</span>Ruido extraño</button>
+        <button class="opcion" onclick="elegir(this,'Se atasca')"><span class="ico">⛔</span>Se atasca / trabada</button>
+        <button class="opcion" onclick="elegir(this,'Fuga')"><span class="ico">💧</span>Fuga de agua o aceite</button>
+        <button class="opcion" onclick="elegir(this,'Pieza rota')"><span class="ico">🔩</span>Pieza suelta o rota</button>
+        <button class="opcion" onclick="elegir(this,'Otro')"><span class="ico">❓</span>Otro problema</button>
+      </div>
+      <div class="error" id="err-problema">Elige una opción para continuar.</div>
+      <button class="btn btn-primario" onclick="siguienteProblema()">Continuar</button>
+    </div>
+  </section>
+
+  <!-- P5 PASO 3: GRAVEDAD + DETALLE -->
+  <section class="pantalla" id="gravedad">
+    <header class="top"><button class="volver" onclick="ir('problema')">← Volver</button><h1>Reportar falla</h1></header>
+    <div class="pasos"><div class="hecho"></div><div class="hecho"></div><div class="hecho"></div></div>
+    <div class="paso-txt">Paso 3 de 3 · Gravedad</div>
+    <div class="contenido">
+      <h2>¿Cómo está la línea?</h2>
+      <button class="opcion gravedad g-roja" onclick="elegirG(this,'Línea detenida')"><span class="ico">🛑</span><span>Línea detenida<small>No se puede seguir trabajando</small></span></button>
+      <button class="opcion gravedad g-amarilla" onclick="elegirG(this,'Funciona con problemas')"><span class="ico">⚠️</span><span>Funciona con problemas<small>Se puede trabajar, pero más lento</small></span></button>
+      <button class="opcion gravedad g-gris" onclick="elegirG(this,'Solo aviso')"><span class="ico">📝</span><span>Solo aviso<small>Algo raro, pero sin afectar</small></span></button>
+      <p style="font-size:15px;color:var(--gris)">Opcional: agrega más información</p>
+      <div class="fila">
+        <div class="grabar" id="btn-foto" onclick="this.innerHTML='✅ Foto agregada'">📷 Agregar foto</div>
+        <div class="grabar" id="btn-audio" onmousedown="grabar(true)" onmouseup="grabar(false)" ontouchstart="grabar(true)" ontouchend="grabar(false)">🎤 Mantén para grabar audio</div>
+      </div>
+      <div class="error" id="err-gravedad">Elige cómo está la línea para continuar.</div>
+      <button class="btn btn-primario" onclick="siguienteGravedad()">Revisar reporte</button>
+    </div>
+  </section>
+
+  <!-- P6 REVISAR Y ENVIAR -->
+  <section class="pantalla" id="revisar">
+    <header class="top"><button class="volver" onclick="ir('gravedad')">← Volver</button><h1>Revisar reporte</h1></header>
+    <div class="contenido">
+      <h2>Revisa antes de enviar</h2>
+      <dl class="tarjeta resumen">
+        <dt>Máquina</dt><dd>Calibradora · Línea 2 <a href="#" onclick="ir('confirmar');return false" style="font-size:15px;font-weight:400">Cambiar</a></dd>
+        <dt>Problema</dt><dd id="r-problema">-</dd>
+        <dt>Estado de la línea</dt><dd id="r-gravedad">-</dd>
+        <dt>Reportado por</dt><dd>Rosa M. · Turno A · 10:42</dd>
+      </dl>
+      <button class="btn btn-primario" style="margin-top:auto" onclick="ir('enviado')">📤 Enviar reporte</button>
+    </div>
+  </section>
+
+  <!-- P7 CONFIRMACION -->
+  <section class="pantalla" id="enviado">
+    <header class="top"><h1>Reporte enviado</h1></header>
+    <div class="contenido">
+      <div class="exito"><div class="ico">✅</div><h2>¡Listo, reporte enviado!</h2><p>Número de reporte: <b>R-0142</b></p></div>
+      <div class="aviso">Ya avisamos al <b>técnico de turno</b> y a tu supervisor. Te llegará un aviso cuando cambie el estado.</div>
+      <ul class="seguimiento tarjeta" style="padding:14px 14px 0">
+        <li class="ok">Enviado<small>10:42</small></li>
+        <li class="actual">Recibido por mantención<small>Esperando…</small></li>
+        <li>Técnico en camino</li>
+        <li>Reparado</li>
+      </ul>
+      <button class="btn btn-primario" onclick="ir('inicio')">Volver al inicio</button>
+      <button class="btn btn-texto" onclick="ir('detalle')">Ver el reporte</button>
+    </div>
+  </section>
+
+  <!-- P8 MIS REPORTES -->
+  <section class="pantalla" id="misreportes">
+    <header class="top"><button class="volver" onclick="ir('inicio')">← Volver</button><h1>Mis reportes</h1></header>
+    <div class="contenido">
+      <p style="font-size:15px;color:var(--gris)">En curso</p>
+      <div class="lista-item" onclick="ir('detalle')"><span class="ico">⚙️</span><div><b>Calibradora L2</b><br><span class="chip chip-amarillo">Técnico en camino</span></div><span class="flecha">›</span></div>
+      <p style="font-size:15px;color:var(--gris)">Terminados</p>
+      <div class="lista-item"><span class="ico">🛞</span><div><b>Cinta 2A</b><br><span class="chip chip-verde">Reparado</span> <span style="font-size:14px;color:var(--gris)">ayer</span></div></div>
+      <div class="lista-item"><span class="ico">💧</span><div><b>Hidrocooler</b><br><span class="chip chip-verde">Reparado</span> <span style="font-size:14px;color:var(--gris)">12/11</span></div></div>
+      <button class="btn btn-texto" onclick="mostrarNotif()" style="margin-top:auto">(Prototipo) Simular aviso del técnico 🔔</button>
+    </div>
+  </section>
+
+  <!-- P9 DETALLE / SEGUIMIENTO + MENSAJES (conversar) -->
+  <section class="pantalla" id="detalle">
+    <header class="top"><button class="volver" onclick="ir('misreportes')">← Volver</button><h1>Reporte R-0142</h1></header>
+    <div class="contenido">
+      <div class="tarjeta"><p><b>Calibradora · Línea 2</b></p><p style="color:var(--gris)" id="d-problema">Se atasca · Línea detenida</p></div>
+      <ul class="seguimiento tarjeta" style="padding:14px 14px 0">
+        <li class="ok">Enviado<small>10:42</small></li>
+        <li class="ok">Recibido por mantención<small>10:44 · Juan P. (técnico)</small></li>
+        <li class="actual"><b>Técnico en camino</b><small>Llegada estimada: 5 min</small></li>
+        <li>Reparado</li>
+      </ul>
+      <p style="font-size:15px;color:var(--gris)">Mensajes con el técnico</p>
+      <div style="display:flex;flex-direction:column;gap:8px" id="chat">
+        <div class="msg tec">Hola Rosa, voy saliendo del taller. ¿Se trabó con fruta adentro?</div>
+      </div>
+      <div class="rapidas">
+        <button onclick="resp('Sí, tiene fruta adentro')">Sí, tiene fruta</button>
+        <button onclick="resp('No, está vacía')">No, está vacía</button>
+        <button onclick="resp('No sé')">No sé</button>
+      </div>
+      <button class="btn btn-texto" onclick="mostrarNotif()">(Prototipo) Simular aviso de reparación 🔔</button>
+    </div>
+  </section>
+
+  <!-- P10 RESPONDER: CONFIRMAR REPARACION -->
+  <section class="pantalla" id="responder">
+    <header class="top"><button class="volver" onclick="ir('detalle')">← Volver</button><h1>Reporte R-0142</h1></header>
+    <div class="contenido">
+      <ul class="seguimiento tarjeta" style="padding:14px 14px 0">
+        <li class="ok">Enviado<small>10:42</small></li>
+        <li class="ok">Recibido por mantención<small>10:44</small></li>
+        <li class="ok">Técnico en camino<small>10:47</small></li>
+        <li class="actual"><b>Reparado (por confirmar)</b><small>11:15 · "Se cambió la correa"</small></li>
+      </ul>
+      <h2>¿La calibradora funciona bien?</h2>
+      <p>Tu respuesta ayuda a cerrar el reporte correctamente.</p>
+      <button class="btn btn-primario" onclick="ir('cerrado')">👍 Sí, funciona bien</button>
+      <button class="btn btn-secundario" onclick="ir('reabierto')">👎 No, sigue fallando</button>
+    </div>
+  </section>
+
+  <section class="pantalla" id="cerrado">
+    <header class="top"><h1>Reporte cerrado</h1></header>
+    <div class="contenido">
+      <div class="exito"><div class="ico">🎉</div><h2>¡Gracias, Rosa!</h2><p>El reporte R-0142 quedó cerrado.</p></div>
+      <div class="aviso">Tiempo total: <b>33 minutos</b> desde que avisaste.</div>
+      <button class="btn btn-primario" style="margin-top:auto" onclick="reiniciar()">Volver al inicio</button>
+    </div>
+  </section>
+
+  <section class="pantalla" id="reabierto">
+    <header class="top"><h1>Reporte reabierto</h1></header>
+    <div class="contenido">
+      <div class="exito"><div class="ico">🔁</div><h2>Avisamos al técnico</h2><p>El reporte R-0142 volvió a "Recibido". Juan P. volverá a revisar.</p></div>
+      <textarea placeholder="(Opcional) ¿Qué sigue pasando?"></textarea>
+      <button class="btn btn-primario" style="margin-top:auto" onclick="reiniciar()">Volver al inicio</button>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<div class="ayuda-proto">
+  Prototipo de media fidelidad · <b>ReportaYa</b> · IHC Unidad 2 · Universidad Mayor<br>
+  Datos de ejemplo, sin backend. <a href="#" onclick="reiniciar();return false">Reiniciar recorrido</a>
+</div>
+
+<script>
+  // Navegacion simple entre "pantallas"
+  var estado = { problema: null, gravedad: null };
+
+  function ir(id) {
+    document.querySelectorAll('.pantalla').forEach(function (p) { p.classList.remove('activa'); });
+    document.getElementById(id).classList.add('activa');
+    if (id === 'revisar') {
+      document.getElementById('r-problema').textContent = estado.problema;
+      document.getElementById('r-gravedad').textContent = estado.gravedad;
+    }
+    if (id === 'detalle' && estado.problema) {
+      document.getElementById('d-problema').textContent = estado.problema + ' · ' + estado.gravedad;
+    }
+  }
+  function elegir(el, valor) {
+    document.querySelectorAll('#grilla-problema .opcion').forEach(function (o) { o.classList.remove('sel'); });
+    el.classList.add('sel');
+    estado.problema = valor;
+    document.getElementById('err-problema').classList.remove('ver');
+  }
+  function siguienteProblema() {
+    if (!estado.problema) { document.getElementById('err-problema').classList.add('ver'); return; }
+    ir('gravedad');
+  }
+  function elegirG(el, valor) {
+    document.querySelectorAll('#gravedad .gravedad').forEach(function (o) { o.classList.remove('sel'); });
+    el.classList.add('sel');
+    estado.gravedad = valor;
+    document.getElementById('err-gravedad').classList.remove('ver');
+  }
+  function siguienteGravedad() {
+    if (!estado.gravedad) { document.getElementById('err-gravedad').classList.add('ver'); return; }
+    ir('revisar');
+  }
+  function grabar(on) {
+    var b = document.getElementById('btn-audio');
+    if (on) { b.classList.add('on'); b.textContent = '🔴 Grabando… suelta para terminar'; }
+    else { b.classList.remove('on'); b.textContent = '✅ Audio de 0:06 agregado'; }
+  }
+  function resp(texto) {
+    var chat = document.getElementById('chat');
+    var m = document.createElement('div'); m.className = 'msg yo'; m.textContent = texto; chat.appendChild(m);
+    setTimeout(function () {
+      var t = document.createElement('div'); t.className = 'msg tec'; t.textContent = 'Ok, gracias. Llego en 5 minutos.'; chat.appendChild(t);
+    }, 700);
+  }
+  function mostrarNotif() { document.getElementById('notif').classList.add('ver'); }
+  function ocultarNotif() { document.getElementById('notif').classList.remove('ver'); }
+  function reiniciar() { estado = { problema: null, gravedad: null }; location.href = location.pathname; }
+
+  // Permite abrir una pantalla directo: index.html?gravedad (lo usamos para sacar las capturas)
+  var inicioUrl = location.search.length > 1 ? location.search : location.hash;
+  if (inicioUrl.length > 1) {
+    var partes = inicioUrl.substring(1).split('&');
+    if (partes.indexOf('demo') >= 0) { estado = { problema: 'Se atasca / trabada', gravedad: 'Línea detenida' }; }
+    ir(partes[0]);
+    if (partes.indexOf('notif') >= 0) mostrarNotif();
+    if (partes.indexOf('sel') >= 0) {
+      var o = document.querySelectorAll('#grilla-problema .opcion')[2]; if (o) elegir(o, 'Se atasca / trabada');
+      var g = document.querySelectorAll('#gravedad .gravedad')[0]; if (g) elegirG(g, 'Línea detenida');
+    }
+  }
+</script>
+</body>
+</html>
