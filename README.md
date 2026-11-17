@@ -12,7 +12,6 @@ Trabajo grupal de la **Unidad 2** de *Interacción Humano Computador*, Ingenier�
 
 - Matías Contardo
 - Daniela Geell
-- Francisco Ocares
 
 ## Proceso de diseño
 
